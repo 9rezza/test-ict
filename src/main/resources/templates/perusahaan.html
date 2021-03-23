@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Test ICTIndo Mitra Solusi</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/3.2.1/jquery.serializejson.min.js"></script>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Test ICTIndo Mitra Solusi</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/karyawan">Karyawan</a></li>
+                    <li><a href="/mobil">Mobil</a></li>
+                    <li class="active"><a href="/perusahaan">Perusahaan</a></li>
+                    <li><a style="color: red; font-weight: bold" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div th:switch="${perusahaan}">
+                        <h2 th:case="null">Belum ada list Perusahaan!</h2>
+                        <div th:case="*">
+                            <h2>List Perusahaan</h2>
+                            <button class="btn btn-info add">Tambah</button>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Alamat</th>
+                                        <th>Nomor Telepon</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="f : ${perusahaan}">
+                                        <td th:text="${f.nama}"></td>
+                                        <td th:text="${f.alamat}"></td>
+                                        <td th:text="${f.nomorTelepon}"></td>
+                                        <th>
+                                            <button class="btn btn-info edit" th:attr="data-id=${f.perusahaanId}">Edit</button>
+                                            <button class="btn btn-danger delete" th:attr="data-id=${f.perusahaanId}">Delete</button>
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal-form" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/api/perusahaan" id="form">
+                            <input type="hidden" class="form-control" name="perusahaanId" id="perusahaanId" required=""/>
+                            <div class="form-group">
+                                <label for="nama">Nama:</label>
+                                <input type="text" class="form-control" name="nama" id="nama" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alamat">Alamat</label>
+                                <input type="text" class="form-control" name="alamat" id="alamat" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="nomorTelepon">Nomor Telepon</label>
+                                <input type="text" class="form-control" name="nomorTelepon" id="nomorTelepon" required=""/>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        $("#form").submit(function (e) {
+            e.preventDefault();
+            var url = $(this).prop("action");
+            var data = JSON.stringify($("#form").serializeJSON());
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                contentType: "application/json",
+                url: url,
+                data: data,
+                success: function (res) {
+                    window.location = window.location;
+                },
+                error: function () {
+                    alert("Gagal menyimpan data");
+                }
+            });
+        });
+
+        $(".add").click(function (e) {
+            e.preventDefault();
+            $("#modal-title").text("Tambah Perusahaan")
+            $("#perusahaanId").prop("disable", true)
+            $("#perusahaanId").val("")
+            $("#nama").val("")
+            $("#alamat").val("")
+            $("#nomorTelepon").val("")
+            $("#modal-form").modal("show");
+        });
+
+        $(".edit").click(function (e) {
+            e.preventDefault();
+            var perusahaanId = $(this).data("id");
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                contentType: "application/json",
+                url: "/api/perusahaan/" + perusahaanId,
+                success: function (res) {
+                    $("#modal-title").text("Edit Perusahaan")
+                    $("#perusahaanId").prop("disable", false)
+                    $("#perusahaanId").val(res.perusahaanId)
+                    $("#nama").val(res.nama)
+                    $("#alamat").val(res.alamat)
+                    $("#nomorTelepon").val(res.nomorTelepon)
+                    $("#modal-form").modal("show");
+                },
+                error: function () {
+                    alert("Gagal mengambil data");
+                }
+            });
+        });
+
+        $(".delete").click(function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure?")) {
+                var perusahaanId = $(this).data("id");
+                $.ajax({
+                    type: "delete",
+                    dataType: "json",
+                    contentType: "application/json",
+                    url: "/api/perusahaan/" + perusahaanId,
+                    success: function (res) {
+                        window.location = window.location;
+                    },
+                    error: function () {
+                        alert("Gagal delete data. Contstrain data");
+                    }
+                });
+            }
+        });
+    </script>
+</html>

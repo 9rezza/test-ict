@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Test ICTIndo Mitra Solusi</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"/>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.serializeJSON/3.2.1/jquery.serializejson.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <style>
+            .form-group > .select2-container {
+                width: 100% !important;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Test ICTIndo Mitra Solusi</a>
+                </div>
+                <ul class="nav navbar-nav">
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li class="active"><a href="/karyawan">Karyawan</a></li>
+                    <li><a href="/mobil">Mobil</a></li>
+                    <li><a href="/perusahaan">Perusahaan</a></li>
+                    <li><a style="color: red; font-weight: bold" href="/logout">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1">
+                    <div th:switch="${karyawan}">
+                        <h2 th:case="null">Belum ada list Karyawan!</h2>
+                        <div th:case="*">
+                            <h2>List Karyawan</h2>
+                            <button class="btn btn-info add">Tambah</button>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nama</th>
+                                        <th>Jenis Kelamin</th>
+                                        <th>Tempat Lahir</th>
+                                        <th>Tanggal Lahir</th>
+                                        <th>Alamat Rumah</th>
+                                        <th>Nomor Handphone</th>
+                                        <th>Perusahaan</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="f : ${karyawan}">
+                                        <td th:text="${f.nama}"></td>
+                                        <td th:text="${(!f.jenisKelamin.toString().isEmpty()) && f.jenisKelamin.toString().equals('L') ? 'Laki-laki' : 'Perempuan'}"></td>
+                                        <td th:text="${f.tempatLahir}"></td>
+                                        <td th:text="${f.tanggalLahir}"></td>
+                                        <td th:text="${f.alamatRumah}"></td>
+                                        <td th:text="${f.nomorHandphone}"></td>
+                                        <td th:text="${f.perusahaanId.nama}"></td>
+                                        <th>
+                                            <button class="btn btn-info edit" th:attr="data-id=${f.karyawanId}">Edit</button>
+                                            <button class="btn btn-danger delete" th:attr="data-id=${f.karyawanId}">Delete</button>
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="modal-form" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/api/karyawan" id="form">
+                            <input type="hidden" class="form-control" name="karyawanId" id="karyawanId" required=""/>
+                            <div class="form-group">
+                                <label for="nama">Nama:</label>
+                                <input type="text" class="form-control" name="nama" id="nama" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="jenisKelamin">Jenis Kelamin:</label>
+                                <select class="form-control" name="jenisKelamin" id="jenisKelamin" required="">
+                                    <option value='L'>Laki-Laki</option>
+                                    <option value='P'>Perempuan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="tempatLahir">Tempat Lahir:</label>
+                                <input type="text" class="form-control" name="tempatLahir" id="tempatLahir" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="tanggalLahir">Tanggal Lahir:</label>
+                                <input type="date" class="form-control" name="tanggalLahir" id="tanggalLahir" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alamatRumah">Alamat Rumah:</label>
+                                <input type="text" class="form-control" name="alamatRumah" id="alamatRumah" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="nomorHandphone">Nomor Handphone:</label>
+                                <input type="text" class="form-control" name="nomorHandphone" id="nomorHandphone" required=""/>
+                            </div>
+                            <div class="form-group">
+                                <label for="perusahaanId">Perusahaan:</label>
+                                <select class="form-control" name="perusahaanId" id="perusahaanId" required="">
+                                    <option>----Loading----</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="listMobil">Mobil Karyawan (multiple):</label>
+                                <select class="form-control listMobil" name="listMobil" id="listMobil" multiple>
+                                    <option th:each="g : ${mobil}"
+                                            th:value="${g.mobilId}"
+                                            th:text="${g.nama}">Nama Mobil</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        var listPerusahaan;
+        $(document).ready(function () {
+            $('#listMobil').select2();
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                contentType: "application/json",
+                url: "/api/perusahaan",
+                success: function (res) {
+                    option = ""
+                    $(res).each(function (i, v) {
+                        console.log(JSON.stringify(v));
+                        option += "<option value='" + v.perusahaanId + "'>" + v.nama + "</option>";
+                        console.log(option);
+                    });
+                    $("#perusahaanId").html(option);
+                },
+                error: function () {
+                    alert("Gagal menyimpan data");
+                }
+            });
+        });
+        $("#form").submit(function (e) {
+            e.preventDefault();
+            var url = $(this).prop("action");
+            var dataJSON = $("#form").serializeJSON();
+            dataJSON["perusahaanId"] = {
+                "perusahaanId" : dataJSON["perusahaanId"]
+            };
+            var dataRawJSON = JSON.stringify(dataJSON);
+            $.ajax({
+                type: "post",
+                dataType: "json",
+                contentType: "application/json",
+                url: url,
+                data: dataRawJSON,
+                success: function (res) {
+                    listMobilKaryawan = [];
+                    $("#listMobil option:selected").each(function () {
+                        value = $(this).val();
+                        mobilKaryawan = {
+                            "karyawanId": {
+                                "karyawanId": res.karyawanId
+                            },
+                            "mobilId": {
+                                "mobilId": parseInt(value)
+                            }
+                        };
+                        listMobilKaryawan.push(mobilKaryawan);
+                    });
+                    dataRawJSON = JSON.stringify(listMobilKaryawan);
+                    $.ajax({
+                        type: "post",
+                        dataType: "json",
+                        contentType: "application/json",
+                        url: url + "/mobil",
+                        data: dataRawJSON,
+                        success: function (res) {
+                            window.location = window.location;
+                        },
+                        error: function () {
+                            alert("Gagal menyimpan data");
+                        }
+                    });
+                },
+                error: function () {
+                    alert("Gagal menyimpan data");
+                }
+            });
+        });
+
+        $(".add").click(function (e) {
+            e.preventDefault();
+            $("#modal-title").text("Tambah Karyawan");
+            $("#karyawanId").prop("disable", true);
+            $("#karyawanId").val("");
+            $("#nama").val("");
+            $("#jenisKelamin").val("");
+            $("#tempatLahir").val("");
+            $("#tanggalLahir").val("");
+            $("#alamatRumah").val("");
+            $("#nomorHandphone").val("");
+            $("#listMobil").val("");
+            $("#perusahaanId").val("");
+            $("#modal-form").modal("show");
+        });
+
+        $(".edit").click(function (e) {
+            e.preventDefault();
+            var karyawanId = $(this).data("id");
+            $.ajax({
+                type: "get",
+                dataType: "json",
+                contentType: "application/json",
+                url: "/api/karyawan/" + karyawanId,
+                success: function (res) {
+                    $("#modal-title").text("Edit Karyawan");
+                    $("#karyawanId").prop("disable", false);
+                    $("#karyawanId").val(res.karyawanId);
+                    $("#nama").val(res.nama);
+                    $("#jenisKelamin").val(res.jenisKelamin);
+                    $("#tempatLahir").val(res.tempatLahir);
+                    $("#tanggalLahir").val(res.tanggalLahir);
+                    $("#alamatRumah").val(res.alamatRumah);
+                    $("#nomorHandphone").val(res.nomorHandphone);
+                    $("#perusahaanId").val(JSON.stringify(res.perusahaanId.perusahaanId));
+                    console.log(JSON.stringify(res.perusahaanId));
+                    $.ajax({
+                        type: "get",
+                        dataType: "json",
+                        contentType: "application/json",
+                        url: "/api/karyawan/mobil/" + karyawanId,
+                        success: function (res) {
+                            value = [];
+                            $(res).each(function (i, v) {
+                                value.push(v.mobilId.mobilId);
+                            });
+                            console.log(value);
+                            $("#listMobil").val(value);
+                            $("#listMobil").trigger('change');
+                            $("#modal-form").modal("show");
+                        },
+                        error: function () {
+                            alert("Gagal mengambil data");
+                        }
+                    });
+                },
+                error: function () {
+                    alert("Gagal mengambil data");
+                }
+            });
+        });
+
+        $(".delete").click(function (e) {
+            e.preventDefault();
+            if (confirm("Are you sure?")) {
+                var karyawanId = $(this).data("id");
+                $.ajax({
+                    type: "delete",
+                    dataType: "json",
+                    contentType: "application/json",
+                    url: "/api/karyawan/" + karyawanId,
+                    success: function (res) {
+                        window.location = window.location;
+                    },
+                    error: function () {
+                        alert("Gagal delete data. Contstrain data");
+                    }
+                });
+            }
+        });
+    </script>
+</html>
